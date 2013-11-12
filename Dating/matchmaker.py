@@ -22,13 +22,13 @@ def playSimulatedAnnealing(candidates, numberOfAttributes):
   singleCandidateParsing(candidates, numberOfAttributes)
   (bestWeights, cumulativeDifferences) = getBestWeights(candidates, [getRandomWeightSelection(numberOfAttributes)])
 
-  maxTemperature = 250
+  maxTemperature = 100
   for k in range(maxTemperature):
     temperature = (k/float(maxTemperature)) * 100
     if randint(0, 100) > temperature:
       weightSelection = [getRandomWeightSelection(numberOfAttributes) for _ in range(maxTemperature-k)]
     else:
-      if cumulativeDifferences[0] > 1.1:
+      if cumulativeDifferences[0] > 0.3:
         minRotated = rotateMin(candidates, bestWeights, cumulativeDifferences)
         shakenWeights = shakeZeros(candidates, minRotated, cumulativeDifferences)
       else:

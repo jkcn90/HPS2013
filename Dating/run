@@ -1,4 +1,4 @@
-java -jar DatingGame.jar B 30 4567 4568 1 1 &
+java -jar DatingGame.jar B 100 4567 4568 1 1 &
 sleep 1
 python whiteTruffle.py 4567 &
 python whiteTruffle.py 4568

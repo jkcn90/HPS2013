@@ -86,6 +86,10 @@ if __name__ == '__main__':
     rawData = receive(s)
     (playerType, numberOfAttributes) = getPlayerTypeAndNumberOfAttributes(rawData)
 
+    if playerType == 'P':
+      p = Player(numberOfAttributes)
+      playerStr = p.getParamsStr()
+
     while True:
       if playerType == 'M':
         # Play Matchmaker
@@ -96,8 +100,6 @@ if __name__ == '__main__':
         
         send(s, encodeCandidate(nextCandidate))
       elif playerType == 'P':
-        p = Player(numberOfAttributes)
-        playerStr = p.getParamsStr()
         send(s, playerStr)
       else:
         raise Exception('Invalid Player Type')
