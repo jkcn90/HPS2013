@@ -16,21 +16,24 @@ def playBruteForce(candidates, numberOfAttributes):
   return nextCandidate
 
 def playSimulatedAnnealing(candidates, numberOfAttributes):
+  #if randint(0, 1) == 1:
+  #  nextCandidate = playRandom(candidates, numberOfAttributes)
+  #  return
   singleCandidateParsing(candidates, numberOfAttributes)
   (bestWeights, cumulativeDifferences) = getBestWeights(candidates, [getRandomWeightSelection(numberOfAttributes)])
 
-  maxTemperature = 100
+  maxTemperature = 250
   for k in range(maxTemperature):
     temperature = (k/float(maxTemperature)) * 100
     if randint(0, 100) > temperature:
       weightSelection = [getRandomWeightSelection(numberOfAttributes) for _ in range(maxTemperature-k)]
     else:
-      #if cumulativeDifferences[0] < 1.8:
-      #  minRotated = rotateMin(candidates, bestWeights, cumulativeDifferences)
-      #  shakenWeights = shakeZeros(candidates, minRotated, cumulativeDifferences)
-      #else:
-      #  shakenWeights = shakeZeros(candidates, bestWeights, cumulativeDifferences)
-      shakenWeights = shakeZeros(candidates, bestWeights, cumulativeDifferences)
+      if cumulativeDifferences[0] > 1.1:
+        minRotated = rotateMin(candidates, bestWeights, cumulativeDifferences)
+        shakenWeights = shakeZeros(candidates, minRotated, cumulativeDifferences)
+      else:
+        shakenWeights = shakeZeros(candidates, bestWeights, cumulativeDifferences)
+      #shakenWeights = shakeZeros(candidates, bestWeights, cumulativeDifferences)
       swappedWeights = swapPositiveNegative(candidates, shakenWeights, cumulativeDifferences)
       #weightSelection = getNeighborWeightSelecion(swappedWeights)
       weightSelection = swappedWeights
@@ -39,7 +42,7 @@ def playSimulatedAnnealing(candidates, numberOfAttributes):
     (thisBestWeights, thisCumulativeDifferences) = getBestWeights(candidates, weightSelection)
     #print(thisCumulativeDifferences)
 
-    if (cumulativeDifferences[0] > thisCumulativeDifferences[0] and 
+    if (cumulativeDifferences[0] > thisCumulativeDifferences[0] and
         (cumulativeDifferences[1] > thisCumulativeDifferences[1] or
          cumulativeDifferences[2] < thisCumulativeDifferences[2])):
       bestWeights = thisBestWeights
@@ -53,7 +56,10 @@ def playSimulatedAnnealing(candidates, numberOfAttributes):
         break
 
   possibleCandidates = getFilteredCandidateList(candidates, bestWeights)
-  nextCandidate = list(possibleCandidates[0])
+  if len(possibleCandidates) < 1:
+    nextCandidate = playRandom(candidates, numberOfAttributes)
+  else:
+    nextCandidate = list(possibleCandidates[0])
   return nextCandidate
 
 def rotateMin(candidates, bestWeights, cumulativeDifferences):

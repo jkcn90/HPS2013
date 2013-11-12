@@ -68,6 +68,7 @@ def encodeCandidate(candidate):
 
 if __name__ == '__main__':
   import matchmaker
+  from Player import Player
   port = 4567
   print(sys.argv)
   if len(sys.argv) > 1:
@@ -95,7 +96,9 @@ if __name__ == '__main__':
         
         send(s, encodeCandidate(nextCandidate))
       elif playerType == 'P':
-        pass
+        p = Player(numberOfAttributes)
+        playerStr = p.getParamsStr()
+        send(s, playerStr)
       else:
         raise Exception('Invalid Player Type')
 
