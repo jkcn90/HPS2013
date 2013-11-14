@@ -90,15 +90,17 @@ if __name__ == '__main__':
       p = Player(numberOfAttributes)
       playerStr = p.getParamsStr()
 
+    count = 0
     while True:
       if playerType == 'M':
         # Play Matchmaker
         candidates = parseCandidates(rawData, numberOfAttributes)
         #nextCandidate = matchmaker.playRandom(candidates, numberOfAttributes)
         #nextCandidate = matchmaker.playBruteForce(candidates, numberOfAttributes)
-        nextCandidate = matchmaker.playSimulatedAnnealing(candidates, numberOfAttributes)
+        nextCandidate = matchmaker.playSimulatedAnnealing(candidates, numberOfAttributes, count)
         
         send(s, encodeCandidate(nextCandidate))
+        count+=1
       elif playerType == 'P':
         send(s, playerStr)
       else:

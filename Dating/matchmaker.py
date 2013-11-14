@@ -15,14 +15,54 @@ def playBruteForce(candidates, numberOfAttributes):
   nextCandidate = list(possibleCandidates[0])
   return nextCandidate
 
-def playSimulatedAnnealing(candidates, numberOfAttributes):
-  #if randint(0, 1) == 1:
-  #  nextCandidate = playRandom(candidates, numberOfAttributes)
-  #  return
-  singleCandidateParsing(candidates, numberOfAttributes)
+def playSweep(candidates, numberOfAttributes, count):
+  count = count - 5
+  if count == 0:
+    return [1 for _ in range(numberOfAttributes/2)] + [0 for _ in range(numberOfAttributes-(numberOfAttributes/2))]
+  elif count == 1:
+    return [0 for _ in range(numberOfAttributes/2)] + [1 for _ in range(numberOfAttributes-(numberOfAttributes/2))]
+  elif count == 2:
+    return [1 if x%2==0 else 0 for x in range(numberOfAttributes)]
+  elif count == 3:
+    return [0 if x%2==0 else 1 for x in range(numberOfAttributes)]
+  else:
+    stepSize = numberOfAttributes/10
+    start = 0 + (count-4)*stepSize
+    end = (count-3)*stepSize 
+    return [1 if (x > start and x <= end) else 0 for x in range(numberOfAttributes)]
+
+def playSmallSweep(candidates, numberOfAttributes, count):
+  stepSize = 8
+  index = randint(count, count+stepSize) + count*stepSize
+  return [1 if x == index else 0 for x in range(numberOfAttributes)]
+
+def playSimulatedAnnealing(candidates, numberOfAttributes, count):
+  count = count-1
+  if count > 4 and count < 17:
+    #nextCandidate = playSweep(candidates, numberOfAttributes, count)
+    nextCandidate = playSmallSweep(candidates, numberOfAttributes, count)
+    if sum(nextCandidate) == 0:
+      nextCandidate = playRandom(candidates, numberOfAttributes)
+    return nextCandidate
+  #singleCandidateParsing(candidates, numberOfAttributes)
+  if count >= 17 and count <= 18:
+    nextCandidate = playRandom(candidates, numberOfAttributes)
+    return nextCandidate
   (bestWeights, cumulativeDifferences) = getBestWeights(candidates, [getRandomWeightSelection(numberOfAttributes)])
 
-  maxTemperature = 100
+  if count < 0:
+    maxTemperature = 100
+  elif numberOfAttributes > 80:
+    maxTemperature = 80
+  elif numberOfAttributes > 60:
+    maxTemperature = 100
+  elif numberOfAttributes > 40:
+    maxTemperature = 300
+  elif numberOfAttributes > 30:
+    maxTemperature = 400
+  else:
+    maxTemperature = 500
+
   for k in range(maxTemperature):
     temperature = (k/float(maxTemperature)) * 100
     if randint(0, 100) > temperature:
