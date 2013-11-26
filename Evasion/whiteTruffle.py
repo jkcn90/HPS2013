@@ -83,7 +83,7 @@ def makeMove(socket, direction, wallToCreate, wallToRemove):
     (x2, y2) = wallToCreate[1]
     sendSocket(socket,'%sw(%d,%d),(%d,%d)'%(direction, x1, y1, x2, y2))
   elif wallToRemove != []:
-    sendSocket(socket,'%sx%d'%(direction, wallToRemove))
+    sendSocket(socket,'%swx%d'%(direction, wallToRemove))
   else:
     sendSocket(socket,'%s'%(direction))
 
@@ -100,9 +100,10 @@ def stripNewLine(msg):
   return msg
 
 if __name__=='__main__':
-  from hunter import playHunter
-  from prey import playPrey
+  from hunter import playHunterAlternate
+  from prey import playPreyAlternate
 
+  hunterTrigger = True
   try:
     # Return Team Name
     question = readSocket(s, 1)
@@ -125,9 +126,9 @@ if __name__=='__main__':
       if data == '':
         break
       if HP == 'H':
-        (direction, wallToCreate, wallToDestroy) = playHunter(*parseData(data, M))
+        (direction, wallToCreate, wallToDestroy, hunterTrigger) = playHunterAlternate(hunterTrigger, *parseData(data, M))
       else:
-        direction = playPrey(*parseData(data, M))
+        direction = playPreyAlternate(*parseData(data, M))
         wallToCreate = []
         wallToDestroy = []
       makeMove(s, direction, wallToCreate, wallToDestroy)

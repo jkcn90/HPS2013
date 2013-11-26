@@ -1,5 +1,16 @@
 import math
 
+def playPreyAlternate(walls, maxNumberOfWalls, movesToNextWallBuild, hunterDirection, hunterLocation, preyLocation, remainingTime):
+  if hunterDirection == 'SE':
+    bestMove = 'SW'
+  elif hunterDirection == 'NW':
+    bestMove = 'NE'
+  elif hunterDirection == 'NE':
+    bestMove = 'NW'
+  else:
+    bestMove = 'NE'
+  return bestMove
+
 def playPrey(walls, maxNumberOfWalls, movesToNextWallBuild, hunterDirection, hunterLocation, preyLocation, remainingTime):
 
 	possibleMoves = ['NN', 'SS', 'EE', 'WW', 'NE', 'SE', 'NW', 'SW', 'ZZ']
