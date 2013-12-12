@@ -38,7 +38,7 @@ def sendSocket(sock, msg):
     if sent == 0:
       raise RuntimeError("socket connection broken")
     totalsent = totalsent + sent
-  iSaid(msg)
+  #iSaid(msg)
 
 def makeMove(socket, pid, x, y):
   sendSocket(socket,"(%d,%d,%d)"%(pid, x, y))
@@ -123,9 +123,8 @@ if __name__=="__main__":
         gameState = readSocket(s)
         state.parseState(gameState)
 
-        assert(player == state.nextPlayer)
+        # assert(player == state.nextPlayer)
         if player == pid:
-          print("Small Kine Thinking Brah")
           (x, y) = playMove(state)
           makeMove(s, pid, x, y)
 

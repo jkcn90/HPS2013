@@ -9,7 +9,7 @@ def playHunterAlternate(trigger, walls, maxNumberOfWalls, movesToNextWallBuild, 
   relativeLocationOfPrey = getRelativeLocation(hunterLocation, preyLocation)
   wallToCreate = []
   wallToDestroy = []
-  tolerance = range(1, 10)
+  tolerance = range(1, 15)
   minorTolerance = range(1, 2)
   minorToleranceY = range(2, 5)
   if preyLocation[1] > 460 and hunterLocation[1] > 460 and movesToNextWallBuild < 1:

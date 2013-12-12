@@ -6,36 +6,40 @@ import subprocess
 from operator import itemgetter
 
 def playMove(state):
-  playerOneScore = state.areas[1]
-  playerTwoScore = state.areas[2]
   alreadyPlayedMoves = list(itertools.chain.from_iterable(state.moves))
 
-  if state.playerId == 1 and state.moves[1] == []:
-    (x, y) = (500, 750)
-  elif state.timeLeft > 20 or len(state.moves[2]) > state.numberOfStones - 1 or playerOneScore > playerTwoScore:
-    points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
-    innerPoints = getPointsOnCircle((500, 500), 150, state.boardSize, alreadyPlayedMoves)
-    innerPoints2 = getPointsOnCircle((500, 500), 50, state.boardSize, alreadyPlayedMoves)
-    points = innerPoints + innerPoints2 + points
-    nextMoves = getBestMove(state.moves, points, state.playerId, state.numberOfStones)
-    (x, y) = max(nextMoves, key = itemgetter(state.playerId+1))[0:2]
-  elif state.timeLeft > 10:
-    if state.playerId == 1:
-      opponentMoves = state.moves[2]
-    else:
-      opponentMoves = state.moves[1]
-    move = [getPointsOnCircle(move, 1, state.boardSize)
-            for move in opponentMoves]
-    points = list(itertools.chain(*move))
-    nextMoves = getBestMove(state.moves, points, state.playerId, state.numberOfStones)
-    (x, y) = max(nextMoves, key = itemgetter(state.playerId+1))[0:2]
+  midpoint = state.boardSize / 2
+  center = (midpoint, midpoint)
+
+  if state.numberOfPlayers == 2:
+    radius = midpoint * 0.8
+    points = getPointsOnCircle(center, radius, state.boardSize, alreadyPlayedMoves)
+    points += getPointsOnCircle(center, 0, state.boardSize, alreadyPlayedMoves)
   else:
-    points = getPointsOnCircle((500, 500), 400, state.boardSize, alreadyPlayedMoves)
-    index = random.randint(0, len(points)-1)
-    (x, y) = points[index]
+    radius = midpoint * 0.8
+    radius2 = midpoint * 0.1
+
+    points = getPointsOnCircle(center, radius, state.boardSize, alreadyPlayedMoves)
+    points += getPointsOnCircle(center, radius2, state.boardSize, alreadyPlayedMoves)
+    points += getPointsOnCircle(center, 0, state.boardSize, alreadyPlayedMoves)
+
+  if state.timeLeft < 18 and state.numberOfStones != 10:
+    (x, y) = random.choice(points)
+    return (x, y)
+
+  nextMoves = getBestMove(state.moves, points, state.playerId, state.numberOfPlayers, state.numberOfStones)
+
+  #maxAreaPlayer = max(enumerate(state.areas), key=itemgetter(1))[0]
+  #if maxAreaPlayer == state.playerId:
+  #  (x, y) = max(nextMoves, key=itemgetter(state.playerId+1))[0:2]
+  #else:
+  #  sortedNextMoves = sorted(nextMoves, key=itemgetter(state.playerId+1), reverse=True)
+  #  sortedNextMoves = sorted(nextMoves, key=itemgetter(maxAreaPlayer+1))
+  #  (x, y) = sortedNextMoves[0][0:2]
+  (x, y) = max(nextMoves, key=itemgetter(state.playerId+1))[0:2]
   return (x, y)
 
-def getBestMove(previousMoves, points, playerId, numberOfStones):
+def getBestMove(previousMoves, points, playerId, numberOfPlayers, numberOfStones):
   points = str(points)
   points = points.replace('(', '')
   points = points.replace(')', '')
@@ -43,31 +47,33 @@ def getBestMove(previousMoves, points, playerId, numberOfStones):
   points = points.replace(']', '')
   points = points.replace('[', '')
 
-  points = points + '\n' + str(playerId) + ',' + str(numberOfStones)
+  points = points + '\n' + str(numberOfPlayers) + ',' + str(playerId) + ',' + str(numberOfStones)
+  playerMoves = ''
 
-  playerOneMoves = str(previousMoves[1])
-  playerOneMoves = playerOneMoves.replace('(', '1,')
-  playerOneMoves = playerOneMoves.replace(')', '')
-  playerOneMoves = playerOneMoves.replace('[', '')
-  playerOneMoves = playerOneMoves.replace(']', '')
-  playerOneMoves = playerOneMoves.replace(' ', '')
-  if playerOneMoves != '':
-    playerOneMoves = ',' + playerOneMoves
+  for playerNumber in range (1, numberOfPlayers+1):
+    thisPlayerMoves = str(previousMoves[playerNumber])
+    thisPlayerMoves = thisPlayerMoves.replace('(', str(playerNumber) + ',')
+    thisPlayerMoves = thisPlayerMoves.replace(')', '')
+    thisPlayerMoves = thisPlayerMoves.replace('[', '')
+    thisPlayerMoves = thisPlayerMoves.replace(']', '')
+    thisPlayerMoves = thisPlayerMoves.replace(' ', '')
+    if thisPlayerMoves != '':
+      thisPlayerMoves = ',' + thisPlayerMoves
+
+    playerMoves += thisPlayerMoves
     
-  playerTwoMoves = str(previousMoves[2])
-  playerTwoMoves = playerTwoMoves.replace('(', '2,')
-  playerTwoMoves = playerTwoMoves.replace(')', '')
-  playerTwoMoves = playerTwoMoves.replace('[', '')
-  playerTwoMoves = playerTwoMoves.replace(']', '')
-  playerTwoMoves = playerTwoMoves.replace(' ', '')
-  if playerTwoMoves != '':
-    playerTwoMoves = ',' + playerTwoMoves
-
-  input_ = points + playerOneMoves + playerTwoMoves
+  input_ = points + playerMoves
   p = subprocess.Popen(["./Voronoi"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
   output = p.communicate(input_)[0]
+
   output = [int(x) for x in output.split(',')]
-  output = zip(output, output[1:], output[2:], output[3:])[::4]
+
+  outputs = []
+  tupleLength = numberOfPlayers+2
+  for i in range(0, tupleLength):
+    outputs += [output[i:]]
+
+  output = zip(*outputs)[::tupleLength]
   return output
 
 def getPointsOnCircle(center, radius, boardSize, excludeMoves = []):

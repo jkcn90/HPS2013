@@ -1,0 +1,4 @@
+chmod 777 whiteTruffle
+module load python-2.7
+python whiteTruffle H <port>
+python whiteTruffle P <port>

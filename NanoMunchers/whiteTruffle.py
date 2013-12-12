@@ -97,32 +97,7 @@ def parseStatus(status):
     remainingStuff = map(int, lines[4].split(','))
     return (newlyPlacedMunchers, munched, liveMunchers, otherLiveMunchers, scores, remainingStuff)
 
-def randomMove(munched, nodesToPlace):
-    rand = int(random.randint(math.floor(remainingStuff[0]*0.5), remainingStuff[0]))
-    print(rand)
-    nextMove = str(rand+len(nodesToPlace))
-    if rand == 0:
-        return nextMove
-    nextMove += ':'
-    for node in nodesToPlace:
-      if nodesToPlace in munched:
-        continue
-      munched.add(node)
-      nextMove += '{0}/{1},'.format(node, programs[random.randint(1, 24) - 1])
-    for i in xrange(rand):
-        randNode = random.randint(1, len(nodes)) - 1
-        while randNode in munched:
-            randNode = random.randint(1, len(nodes)) - 1
-        munched.add(randNode)
-        nextMove += '{0}/{1},'.format(randNode, programs[random.randint(1, 24) - 1])
-    nextMove = nextMove[:-1]
-    print("nextMove")
-    print(nextMove)
-    return nextMove
-
 if __name__ == '__main__':
-  from nanoMuncherTracker import NanoMuncherTracker
-
   port = 4567
   print(sys.argv)
   if len(sys.argv) > 1:
@@ -133,7 +108,6 @@ if __name__ == '__main__':
   try:
     send(s, 'whiteTruffle')
     (nodes, edges) = parseData(receive(s))
-    tracker = NanoMuncherTracker(edges)
   
     munched = set()
     while(True):
@@ -142,7 +116,6 @@ if __name__ == '__main__':
         if status in ['0', '']:
             break
         (newlyPlacedMunchers, newlyMunched, liveMunchers, otherLiveMunchers, scores, remainingStuff) = parseStatus(status)
-        tracker.addNewMunchers(newlyPlacedMunchers, munched, newlyMunched, liveMunchers, otherLiveMunchers)
         munched.update(newlyMunched)
 
         # Remove munched references in edges
@@ -153,12 +126,12 @@ if __name__ == '__main__':
               keysToRemove = keysToRemove + [key]
           for key in keysToRemove:
             del edge[key]
+        print('Start Debug-----------------------------------------------------------------------')
+        print(edge)
+        print(nodes)
+        print('End Debug-------------------------------------------------------------------------')
 
         nodesToPlace = []
-        for muncher in tracker.munchers:
-          nodeToPlace = muncher.getPredictedNextNode(edges)
-          if nodeToPlace is not None:
-            nodesToPlace += [nodeToPlace]
         print("remaining munchers", remainingStuff[0])
         send(s, randomMove(munched, nodesToPlace))
   except:

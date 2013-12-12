@@ -1,4 +1,0 @@
-java -jar SocketServerNanomunchers.jar data1 10 120 4567 120 4568 500 9394 &
-python randomPlayer.py 4567 &
-python whiteTruffle.py 4568 &
-appletviewer jarApp.html -J-Djava.security.policy=applet.policy
